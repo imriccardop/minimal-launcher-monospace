@@ -12,23 +12,11 @@ A text-only Android launcher: white text on pure black, pixel monospace font, no
 - **System integration** — hides the system status bar on the home (swipe from the top edge to peek), applies a pure black wallpaper (home + lock screen) when set as the default launcher, and provides shortcuts to grant usage/notification access.
 - **Counters** — usage time uses the same definition as Digital Wellbeing (foreground time only while the screen is on); unlocks come from keyguard events; notifications are counted once per day per notification (updates and system notifications excluded) and reset at midnight.
 
-## Screens
+## Screenshots
 
-```
-23_45                             80%
-Wed 16 Sep                         94≠
-                                   70≡
-⁴ DuckDuckGo                       32≢
-⁰ WhatsApp
-
-      (swipe down)
-
-search…
-Calendar
-Camera
-Chrome
-…
-```
+| Main page | App list |
+|---|---|
+| <img src="screenshot/minimal_launcher_monospace_screenshot0.jpg" width="280" alt="main page"> | <img src="screenshot/minimal_launcher_monospace_screenshot1.jpg" width="280" alt="app list"> |
 
 ## Settings
 
