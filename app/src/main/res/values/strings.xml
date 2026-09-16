@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Minimal Launcher</string>
+    <string name="search_hint">search…</string>
+    <string name="no_results">no results</string>
+    <string name="favorites_empty_hint">no favorite apps — long-press to open settings</string>
+    <string name="settings_title">settings</string>
+    <string name="settings_back">←</string>
+    <string name="settings_favorites">favorites</string>
+    <string name="settings_time_format">time format</string>
+    <string name="settings_date_format">date format</string>
+    <string name="settings_favorites_marker">favorites marker</string>
+    <string name="settings_favorites_position">favorites position</string>
+    <string name="settings_time_separator">time separator</string>
+    <string name="settings_time_24h">24h</string>
+    <string name="settings_time_12h">12h</string>
+    <string name="settings_usage_grant">grant usage access</string>
+    <string name="settings_about">about</string>
+    <string name="settings_font_credit">font: undefined medium by Andi Rueckel — SIL Open Font License 1.1</string>
+    <string name="settings_designer_credit">designed by riccardo p — https://github.com/imriccardop</string>
+    <string name="app_not_found">app not found</string>
+    <string name="max_favorites">max 8 favorites</string>
+    <string name="settings_home_info">home info</string>
+    <string name="settings_show_unlocks">show unlocks</string>
+    <string name="settings_show_notifications">show notifications</string>
+    <string name="settings_notif_grant">grant notification access</string>
+    <string name="settings_default_launcher">set as default launcher</string>
+    <string name="settings_black_wallpaper">black wallpaper</string>
+</resources>
