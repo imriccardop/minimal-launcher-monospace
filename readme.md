@@ -70,5 +70,5 @@ adb shell cmd package set-home-activity com.google.android.apps.nexuslauncher/.N
 
 ## Credits
 
-- Font: [undefined medium](https://undefined-medium.com) by Andi Rueckel — SIL Open Font License 1.1 (full license bundled in `assets/OFL.txt`)
+- Font: [undefined medium](https://github.com/andirueckel/undefined-medium) by Andi Rueckel — SIL Open Font License 1.1 (full license bundled in `assets/OFL.txt`)
 - Designed by [riccardo p](https://github.com/imriccardop)
