@@ -27,15 +27,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.riccardopatane.minimallauncher.R
 import com.riccardopatane.minimallauncher.ui.components.SearchField
-import com.riccardopatane.minimallauncher.ui.theme.Black
-import com.riccardopatane.minimallauncher.ui.theme.Gray
-import com.riccardopatane.minimallauncher.ui.theme.White
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 
 /** Dedicated favorites management screen, with its own search. */
 @Composable
 fun FavoritesScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val colors = LocalLauncherColors.current
     var pickerQuery by remember { mutableStateOf("") }
 
     val filtered = if (pickerQuery.isBlank()) state.allApps
@@ -44,14 +43,14 @@ fun FavoritesScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(colors.background)
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding(),
     ) {
         BasicText(
             stringResource(R.string.settings_back),
-            style = monoStyle(18.sp, Gray),
+            style = launcherStyle(18.sp, colors.secondary),
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onBack)
@@ -59,7 +58,7 @@ fun FavoritesScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
         )
         BasicText(
             stringResource(R.string.settings_favorites),
-            style = monoStyle(32.sp),
+            style = launcherStyle(32.sp, colors.text),
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
         )
         SearchField(
@@ -81,10 +80,10 @@ fun FavoritesScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
                         .clickable { viewModel.toggleFavorite(entry) }
                         .padding(horizontal = 20.dp, vertical = 8.dp),
                 ) {
-                    // pinned = white, otherwise gray
+                    // pinned = testo pieno, altrimenti secondario
                     BasicText(
                         entry.label,
-                        style = monoStyle(20.sp, if (isFav) White else Gray),
+                        style = launcherStyle(20.sp, if (isFav) colors.text else colors.secondary),
                     )
                 }
             }

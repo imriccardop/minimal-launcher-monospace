@@ -21,14 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.riccardopatane.minimallauncher.R
+import com.riccardopatane.minimallauncher.model.CarsonMode
+import com.riccardopatane.minimallauncher.model.CrtGrid
 import com.riccardopatane.minimallauncher.model.DateFormat
 import com.riccardopatane.minimallauncher.model.FavoriteMarker
 import com.riccardopatane.minimallauncher.model.FavoritePosition
+import com.riccardopatane.minimallauncher.model.ThemeLevel
 import com.riccardopatane.minimallauncher.model.TimeSeparator
-import com.riccardopatane.minimallauncher.ui.theme.Black
-import com.riccardopatane.minimallauncher.ui.theme.Gray
-import com.riccardopatane.minimallauncher.ui.theme.White
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 import com.riccardopatane.minimallauncher.util.LaunchIntents
 import java.time.Instant
 import java.time.ZoneId
@@ -46,12 +47,13 @@ fun SettingsScreen(
     val notifAccess by viewModel.notifAccessFlow.collectAsStateWithLifecycle()
     val now by viewModel.nowFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val colors = LocalLauncherColors.current
     val instant = remember(now) { Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()) }
 
     LazyColumn(
         Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(colors.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentPadding = PaddingValues(bottom = 24.dp),
@@ -59,7 +61,7 @@ fun SettingsScreen(
         item(key = "back") {
             BasicText(
                 stringResource(R.string.settings_back),
-                style = monoStyle(18.sp, Gray),
+                style = launcherStyle(18.sp, colors.secondary),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onBack)
@@ -69,7 +71,7 @@ fun SettingsScreen(
         item(key = "title") {
             BasicText(
                 stringResource(R.string.settings_title),
-                style = monoStyle(32.sp),
+                style = launcherStyle(32.sp, colors.text),
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
             )
         }
@@ -84,11 +86,11 @@ fun SettingsScreen(
             ) {
                 BasicText(
                     stringResource(R.string.settings_favorites),
-                    style = monoStyle(20.sp),
+                    style = launcherStyle(20.sp, colors.text),
                 )
                 BasicText(
                     "  ${state.favorites.size} →",
-                    style = monoStyle(20.sp, Gray),
+                    style = launcherStyle(20.sp, colors.secondary),
                 )
             }
         }
@@ -123,7 +125,7 @@ fun SettingsScreen(
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
                 BasicText(
                     stringResource(R.string.settings_time_24h),
-                    style = monoStyle(20.sp, if (state.use24h) White else Gray),
+                    style = launcherStyle(20.sp, if (state.use24h) colors.text else colors.secondary),
                     modifier = Modifier
                         .clickable { viewModel.setUse24h(true) }
                         .padding(end = 20.dp)
@@ -131,7 +133,7 @@ fun SettingsScreen(
                 )
                 BasicText(
                     stringResource(R.string.settings_time_12h),
-                    style = monoStyle(20.sp, if (!state.use24h) White else Gray),
+                    style = launcherStyle(20.sp, if (!state.use24h) colors.text else colors.secondary),
                     modifier = Modifier
                         .clickable { viewModel.setUse24h(false) }
                         .padding(vertical = 4.dp),
@@ -183,10 +185,60 @@ fun SettingsScreen(
                 onClick = { viewModel.setShowNotifications(!state.showNotifications) },
             )
         }
+        item(key = "sec_look") {
+            SectionLabel(stringResource(R.string.settings_look))
+        }
+        ThemeLevel.entries.forEach { level ->
+            item(key = "look_${level.name}") {
+                ChoiceRow(
+                    label = level.label,
+                    selected = level == state.themeLevel,
+                    onClick = { viewModel.setThemeLevel(level) },
+                )
+            }
+        }
+        item(key = "sec_crt") {
+            SectionLabel(stringResource(R.string.settings_crt))
+        }
+        item(key = "crt_glow_none") {
+            ChoiceRow(
+                label = stringResource(R.string.settings_crt_glow_none),
+                selected = !state.crtGlow,
+                onClick = { viewModel.setCrtGlow(false) },
+            )
+        }
+        item(key = "crt_glow_light") {
+            ChoiceRow(
+                label = stringResource(R.string.settings_crt_glow_light),
+                selected = state.crtGlow,
+                onClick = { viewModel.setCrtGlow(true) },
+            )
+        }
+        CrtGrid.entries.forEach { grid ->
+            item(key = "crt_grid_${grid.name}") {
+                ChoiceRow(
+                    label = grid.label,
+                    selected = grid == state.crtGrid,
+                    onClick = { viewModel.setCrtGrid(grid) },
+                )
+            }
+        }
+        item(key = "sec_typography") {
+            SectionLabel(stringResource(R.string.settings_typography))
+        }
+        CarsonMode.entries.forEach { mode ->
+            item(key = "carson_${mode.name}") {
+                ChoiceRow(
+                    label = mode.label,
+                    selected = mode == state.carsonMode,
+                    onClick = { viewModel.setCarsonMode(mode) },
+                )
+            }
+        }
         item(key = "default_launcher") {
             BasicText(
                 stringResource(R.string.settings_default_launcher),
-                style = monoStyle(20.sp),
+                style = launcherStyle(20.sp, colors.text),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
@@ -198,7 +250,7 @@ fun SettingsScreen(
         item(key = "black_wallpaper") {
             BasicText(
                 stringResource(R.string.settings_black_wallpaper),
-                style = monoStyle(20.sp),
+                style = launcherStyle(20.sp, colors.text),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { viewModel.applyBlackWallpaper() }
@@ -209,7 +261,7 @@ fun SettingsScreen(
             item(key = "usage_grant") {
                 BasicText(
                     stringResource(R.string.settings_usage_grant),
-                    style = monoStyle(20.sp),
+                    style = launcherStyle(20.sp, colors.text),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { context.startActivity(LaunchIntents.usageAccessIntent(context)) }
@@ -221,7 +273,7 @@ fun SettingsScreen(
             item(key = "notif_grant") {
                 BasicText(
                     stringResource(R.string.settings_notif_grant),
-                    style = monoStyle(20.sp),
+                    style = launcherStyle(20.sp, colors.text),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
@@ -239,14 +291,14 @@ fun SettingsScreen(
             // here just the attribution line
             BasicText(
                 stringResource(R.string.settings_font_credit),
-                style = monoStyle(14.sp, Gray),
+                style = launcherStyle(14.sp, colors.secondary),
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
             )
         }
         item(key = "designer_credit") {
             BasicText(
                 stringResource(R.string.settings_designer_credit),
-                style = monoStyle(14.sp, Gray),
+                style = launcherStyle(14.sp, colors.secondary),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
@@ -273,7 +325,7 @@ private fun ChoiceRow(
     ) {
         BasicText(
             label,
-            style = monoStyle(20.sp, if (selected) White else Gray),
+            style = launcherStyle(20.sp, if (selected) LocalLauncherColors.current.text else LocalLauncherColors.current.secondary),
         )
     }
 }
@@ -282,7 +334,7 @@ private fun ChoiceRow(
 private fun SectionLabel(text: String) {
     BasicText(
         "⁂ $text",
-        style = monoStyle(24.sp),
+        style = launcherStyle(24.sp, LocalLauncherColors.current.text),
         modifier = Modifier.padding(start = 20.dp, top = 14.dp, bottom = 4.dp),
     )
 }

@@ -8,13 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 
 @Composable
 fun AppRow(label: String, marker: String = "", modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val colors = LocalLauncherColors.current
     BasicText(
         text = if (marker.isEmpty()) label else "$marker $label",
-        style = monoStyle(20.sp),
+        style = launcherStyle(20.sp, colors.text),
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)

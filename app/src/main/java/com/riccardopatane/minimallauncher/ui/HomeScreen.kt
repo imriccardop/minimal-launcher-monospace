@@ -26,15 +26,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.riccardopatane.minimallauncher.R
+import com.riccardopatane.minimallauncher.model.CarsonMode
 import com.riccardopatane.minimallauncher.model.FavoriteMarker
 import com.riccardopatane.minimallauncher.model.FavoritePosition
 import com.riccardopatane.minimallauncher.model.toSuperscript
+import com.riccardopatane.minimallauncher.ui.carson.CarsonFavoritesLayout
 import com.riccardopatane.minimallauncher.ui.components.AppRow
 import com.riccardopatane.minimallauncher.ui.components.HeaderBlock
-import com.riccardopatane.minimallauncher.ui.theme.Black
-import com.riccardopatane.minimallauncher.ui.theme.Gray
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 import com.riccardopatane.minimallauncher.util.LaunchIntents
+
+/**
+ * Optional marker before the favorites. For numbers: BOTTOM position
+ * decreasing (the lowest = 0), TOP position increasing (the first = 0).
+ */
+private fun markerFor(state: LauncherUiState, index: Int): String = when (state.favoriteMarker) {
+    FavoriteMarker.SUPERSCRIPT ->
+        when (state.favoritePosition) {
+            FavoritePosition.BOTTOM -> toSuperscript(state.favorites.size - 1 - index)
+            FavoritePosition.TOP -> toSuperscript(index)
+        }
+    FavoriteMarker.ASTERISM -> "⁂"
+    FavoriteMarker.ARROW -> "⟶"
+    FavoriteMarker.DIAGONAL -> "↘"
+    FavoriteMarker.GEQ -> "≥"
+    FavoriteMarker.TILDE -> "〜"
+    FavoriteMarker.NONE -> ""
+}
 
 /**
  * Main page: header + favorites, no scrolling. The app list is a separate
@@ -53,8 +72,10 @@ fun HomeScreen(
     val usage by viewModel.usageInfo.collectAsStateWithLifecycle()
     val notifCount by viewModel.notificationsTodayFlow.collectAsStateWithLifecycle()
     val notifAccess by viewModel.notifAccessFlow.collectAsStateWithLifecycle()
+    val carsonEpoch by viewModel.carsonEpochFlow.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    val colors = LocalLauncherColors.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     // horizontal threshold (phone/camera): 30% of the width
@@ -66,7 +87,7 @@ fun HomeScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(colors.background)
             .pointerInput(swipeThresholdPx) {
                 var accumulated = 0f
                 detectHorizontalDragGestures(
@@ -116,53 +137,66 @@ fun HomeScreen(
                 detectTapGestures(onLongPress = { onOpenSettings() })
             },
     ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .navigationBarsPadding(),
-        ) {
-            HeaderBlock(
-                now = now,
-                battery = battery,
-                usage = usage,
-                use24h = state.use24h,
-                dateFormat = state.dateFormat,
-                timeSeparator = state.timeSeparator,
-                showUnlocks = state.showUnlocks,
-                showNotifications = state.showNotifications,
-                notificationsAccess = notifAccess,
-                notificationCount = notifCount,
-            )
-            if (state.favoritePosition == FavoritePosition.BOTTOM) {
-                Spacer(Modifier.weight(1f))
-            }
-            Column(Modifier.padding(bottom = 24.dp)) {
-                if (state.favorites.isEmpty()) {
-                    BasicText(
-                        stringResource(R.string.favorites_empty_hint),
-                        style = monoStyle(16.sp, Gray),
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+        if (state.carsonMode != CarsonMode.OFF && state.favorites.isNotEmpty()) {
+            CarsonFavoritesLayout(
+                header = {
+                    HeaderBlock(
+                        now = now,
+                        battery = battery,
+                        usage = usage,
+                        use24h = state.use24h,
+                        dateFormat = state.dateFormat,
+                        timeSeparator = state.timeSeparator,
+                        showUnlocks = state.showUnlocks,
+                        showNotifications = state.showNotifications,
+                        notificationsAccess = notifAccess,
+                        notificationCount = notifCount,
+                        carsonMode = state.carsonMode,
+                        carsonEpoch = carsonEpoch,
                     )
-                } else {
-                    // optional marker before the favorites. For numbers:
-                    // BOTTOM position decreasing (the lowest = 0), TOP
-                    // position increasing (the first = 0)
-                    state.favorites.forEachIndexed { index, entry ->
-                        val marker = when (state.favoriteMarker) {
-                            FavoriteMarker.SUPERSCRIPT ->
-                                when (state.favoritePosition) {
-                                    FavoritePosition.BOTTOM ->
-                                        toSuperscript(state.favorites.size - 1 - index)
-                                    FavoritePosition.TOP -> toSuperscript(index)
-                                }
-                            FavoriteMarker.ASTERISM -> "⁂"
-                            FavoriteMarker.ARROW -> "⟶"
-                            FavoriteMarker.DIAGONAL -> "↘"
-                            FavoriteMarker.GEQ -> "≥"
-                            FavoriteMarker.TILDE -> "〜"
-                            FavoriteMarker.NONE -> ""
+                },
+                labels = state.favorites.map { it.label },
+                markers = state.favorites.indices.map { markerFor(state, it) },
+                mode = state.carsonMode,
+                epoch = carsonEpoch,
+                position = state.favoritePosition,
+                onLaunch = { viewModel.launch(state.favorites[it]) },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+            )
+        } else {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+            ) {
+                HeaderBlock(
+                    now = now,
+                    battery = battery,
+                    usage = usage,
+                    use24h = state.use24h,
+                    dateFormat = state.dateFormat,
+                    timeSeparator = state.timeSeparator,
+                    showUnlocks = state.showUnlocks,
+                    showNotifications = state.showNotifications,
+                    notificationsAccess = notifAccess,
+                    notificationCount = notifCount,
+                )
+                if (state.favoritePosition == FavoritePosition.BOTTOM) {
+                    Spacer(Modifier.weight(1f))
+                }
+                Column(Modifier.padding(bottom = 24.dp)) {
+                    if (state.favorites.isEmpty()) {
+                        BasicText(
+                            stringResource(R.string.favorites_empty_hint),
+                            style = launcherStyle(16.sp, colors.secondary),
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                        )
+                    } else {
+                        state.favorites.forEachIndexed { index, entry ->
+                            AppRow(entry.label, markerFor(state, index)) { viewModel.launch(entry) }
                         }
-                        AppRow(entry.label, marker) { viewModel.launch(entry) }
                     }
                 }
             }

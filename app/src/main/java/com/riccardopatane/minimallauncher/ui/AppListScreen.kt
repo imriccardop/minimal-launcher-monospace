@@ -35,9 +35,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.riccardopatane.minimallauncher.R
 import com.riccardopatane.minimallauncher.ui.components.AppRow
 import com.riccardopatane.minimallauncher.ui.components.SearchField
-import com.riccardopatane.minimallauncher.ui.theme.Black
-import com.riccardopatane.minimallauncher.ui.theme.Gray
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -50,6 +49,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 @Composable
 fun AppListScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val colors = LocalLauncherColors.current
 
     val listState = rememberLazyListState()
     val focusRequester = remember { FocusRequester() }
@@ -94,7 +94,7 @@ fun AppListScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(colors.background)
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding()
@@ -141,7 +141,7 @@ fun AppListScreen(viewModel: LauncherViewModel, onBack: () -> Unit) {
                     item(key = "no_results") {
                         BasicText(
                             stringResource(R.string.no_results),
-                            style = monoStyle(16.sp, Gray),
+                            style = launcherStyle(16.sp, colors.secondary),
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                         )
                     }

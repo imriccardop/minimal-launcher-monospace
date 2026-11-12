@@ -18,9 +18,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.riccardopatane.minimallauncher.R
-import com.riccardopatane.minimallauncher.ui.theme.Gray
-import com.riccardopatane.minimallauncher.ui.theme.White
-import com.riccardopatane.minimallauncher.ui.theme.monoStyle
+import com.riccardopatane.minimallauncher.ui.theme.LocalLauncherColors
+import com.riccardopatane.minimallauncher.ui.theme.launcherStyle
 
 @Composable
 fun SearchField(
@@ -31,18 +30,19 @@ fun SearchField(
     onFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = LocalLauncherColors.current
     BasicTextField(
         value = query,
         onValueChange = onQueryChange,
         singleLine = true,
-        textStyle = monoStyle(20.sp),
-        cursorBrush = SolidColor(White),
+        textStyle = launcherStyle(20.sp, colors.text),
+        cursorBrush = SolidColor(colors.text),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onImeSearch() }),
         decorationBox = { inner ->
             Box {
                 if (query.isEmpty()) {
-                    BasicText(stringResource(R.string.search_hint), style = monoStyle(20.sp, Gray))
+                    BasicText(stringResource(R.string.search_hint), style = launcherStyle(20.sp, colors.secondary))
                 }
                 inner()
             }

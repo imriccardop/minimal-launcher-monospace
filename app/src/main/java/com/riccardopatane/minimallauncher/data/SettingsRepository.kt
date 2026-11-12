@@ -7,9 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.riccardopatane.minimallauncher.model.AppEntry
+import com.riccardopatane.minimallauncher.model.CarsonMode
+import com.riccardopatane.minimallauncher.model.CrtGrid
 import com.riccardopatane.minimallauncher.model.DateFormat
 import com.riccardopatane.minimallauncher.model.FavoriteMarker
 import com.riccardopatane.minimallauncher.model.FavoritePosition
+import com.riccardopatane.minimallauncher.model.ThemeLevel
 import com.riccardopatane.minimallauncher.model.TimeSeparator
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +35,10 @@ class SettingsRepository(private val context: Context) {
         private val KEY_SHOW_UNLOCKS = booleanPreferencesKey("show_unlocks")
         private val KEY_SHOW_NOTIFICATIONS = booleanPreferencesKey("show_notifications")
         private val KEY_WALLPAPER_APPLIED = booleanPreferencesKey("wallpaper_applied")
+        private val KEY_THEME_LEVEL = stringPreferencesKey("theme_level")
+        private val KEY_CRT_GRID = stringPreferencesKey("crt_grid")
+        private val KEY_CRT_GLOW = booleanPreferencesKey("crt_glow")
+        private val KEY_CARSON_MODE = stringPreferencesKey("carson_mode")
 
         private fun notificationKey(): androidx.datastore.preferences.core.Preferences.Key<Int> =
             androidx.datastore.preferences.core.intPreferencesKey("notif_" + LocalDate.now())
@@ -121,6 +128,44 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setShowNotifications(value: Boolean) {
         context.dataStore.edit { it[KEY_SHOW_NOTIFICATIONS] = value }
+    }
+
+    val themeLevel: Flow<ThemeLevel> = context.dataStore.data.map { prefs ->
+        prefs[KEY_THEME_LEVEL]
+            ?.let { name -> ThemeLevel.entries.firstOrNull { it.name == name } }
+            ?: ThemeLevel.entries.first()
+    }
+
+    suspend fun setThemeLevel(level: ThemeLevel) {
+        context.dataStore.edit { it[KEY_THEME_LEVEL] = level.name }
+    }
+
+    val crtGrid: Flow<CrtGrid> = context.dataStore.data.map { prefs ->
+        prefs[KEY_CRT_GRID]
+            ?.let { name -> CrtGrid.entries.firstOrNull { it.name == name } }
+            ?: CrtGrid.entries.first()
+    }
+
+    suspend fun setCrtGrid(grid: CrtGrid) {
+        context.dataStore.edit { it[KEY_CRT_GRID] = grid.name }
+    }
+
+    val crtGlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_CRT_GLOW] ?: false
+    }
+
+    suspend fun setCrtGlow(value: Boolean) {
+        context.dataStore.edit { it[KEY_CRT_GLOW] = value }
+    }
+
+    val carsonMode: Flow<CarsonMode> = context.dataStore.data.map { prefs ->
+        prefs[KEY_CARSON_MODE]
+            ?.let { name -> CarsonMode.entries.firstOrNull { it.name == name } }
+            ?: CarsonMode.entries.first()
+    }
+
+    suspend fun setCarsonMode(mode: CarsonMode) {
+        context.dataStore.edit { it[KEY_CARSON_MODE] = mode.name }
     }
 
     /** True if the black wallpaper has already been applied by this app. */

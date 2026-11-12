@@ -13,9 +13,12 @@ import com.riccardopatane.minimallauncher.data.DeviceState
 import com.riccardopatane.minimallauncher.data.SettingsRepository
 import com.riccardopatane.minimallauncher.data.UsageStatsRepository
 import com.riccardopatane.minimallauncher.model.AppEntry
+import com.riccardopatane.minimallauncher.model.CarsonMode
+import com.riccardopatane.minimallauncher.model.CrtGrid
 import com.riccardopatane.minimallauncher.model.DateFormat
 import com.riccardopatane.minimallauncher.model.FavoriteMarker
 import com.riccardopatane.minimallauncher.model.FavoritePosition
+import com.riccardopatane.minimallauncher.model.ThemeLevel
 import com.riccardopatane.minimallauncher.model.TimeSeparator
 import com.riccardopatane.minimallauncher.util.BlackWallpaper
 import com.riccardopatane.minimallauncher.util.LaunchIntents
@@ -45,6 +48,10 @@ data class LauncherUiState(
     val timeSeparator: TimeSeparator = TimeSeparator.COLON,
     val showUnlocks: Boolean = true,
     val showNotifications: Boolean = true,
+    val themeLevel: ThemeLevel = ThemeLevel.DURO,
+    val crtGrid: CrtGrid = CrtGrid.NONE,
+    val crtGlow: Boolean = false,
+    val carsonMode: CarsonMode = CarsonMode.OFF,
 )
 
 data class UsageInfo(
@@ -81,6 +88,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val timeSeparator: TimeSeparator,
         val showUnlocks: Boolean,
         val showNotifications: Boolean,
+        val themeLevel: ThemeLevel,
+        val crtGrid: CrtGrid,
+        val crtGlow: Boolean,
+        val carsonMode: CarsonMode,
     )
 
     // two-stage combine: the combine vararg tops out at 5 flows
@@ -102,21 +113,57 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
         val timeSeparator: TimeSeparator,
     )
 
-    private val settingsState = combine(
+    private data class SettingsMid(
+        val favorites: List<String>,
+        val use24h: Boolean,
+        val dateFormat: DateFormat,
+        val favoriteMarker: FavoriteMarker,
+        val timeSeparator: TimeSeparator,
+        val favoritePosition: FavoritePosition,
+        val showUnlocks: Boolean,
+        val showNotifications: Boolean,
+        val themeLevel: ThemeLevel,
+    )
+
+    private val settingsBase2 = combine(
         settingsBase,
         settingsRepository.favoritePosition,
         settingsRepository.showUnlocks,
         settingsRepository.showNotifications,
-    ) { base, position, showUnlocks, showNotifs ->
-        SettingsState(
+        settingsRepository.themeLevel,
+    ) { base, position, showUnlocks, showNotifs, themeLevel ->
+        SettingsMid(
             base.favorites,
             base.use24h,
             base.dateFormat,
             base.favoriteMarker,
-            position,
             base.timeSeparator,
+            position,
             showUnlocks,
             showNotifs,
+            themeLevel,
+        )
+    }
+
+    private val settingsState = combine(
+        settingsBase2,
+        settingsRepository.crtGrid,
+        settingsRepository.crtGlow,
+        settingsRepository.carsonMode,
+    ) { mid, crtGrid, crtGlow, carsonMode ->
+        SettingsState(
+            mid.favorites,
+            mid.use24h,
+            mid.dateFormat,
+            mid.favoriteMarker,
+            mid.favoritePosition,
+            mid.timeSeparator,
+            mid.showUnlocks,
+            mid.showNotifications,
+            mid.themeLevel,
+            crtGrid,
+            crtGlow,
+            carsonMode,
         )
     }
 
@@ -138,6 +185,10 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
             timeSeparator = s.timeSeparator,
             showUnlocks = s.showUnlocks,
             showNotifications = s.showNotifications,
+            themeLevel = s.themeLevel,
+            crtGrid = s.crtGrid,
+            crtGlow = s.crtGlow,
+            carsonMode = s.carsonMode,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LauncherUiState())
 
@@ -155,6 +206,16 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     fun onHomeIntent() {
         homeReset.value++
+    }
+
+    /** Set to the unlock timestamp on every unlock (ACTION_USER_PRESENT):
+     *  the Carson seed mixes in the wall clock, so consecutive unlocks are
+     *  unrelated while the composition stays stable while watching. */
+    private val carsonEpoch = MutableStateFlow(0L)
+    val carsonEpochFlow = carsonEpoch.asStateFlow()
+
+    fun onUserPresent() {
+        carsonEpoch.value = System.currentTimeMillis()
     }
 
     init {
@@ -322,5 +383,21 @@ class LauncherViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setShowNotifications(value: Boolean) {
         viewModelScope.launch { settingsRepository.setShowNotifications(value) }
+    }
+
+    fun setThemeLevel(level: ThemeLevel) {
+        viewModelScope.launch { settingsRepository.setThemeLevel(level) }
+    }
+
+    fun setCrtGrid(grid: CrtGrid) {
+        viewModelScope.launch { settingsRepository.setCrtGrid(grid) }
+    }
+
+    fun setCrtGlow(value: Boolean) {
+        viewModelScope.launch { settingsRepository.setCrtGlow(value) }
+    }
+
+    fun setCarsonMode(mode: CarsonMode) {
+        viewModelScope.launch { settingsRepository.setCarsonMode(mode) }
     }
 }
