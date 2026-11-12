@@ -11,12 +11,15 @@ A text-only Android launcher: white text on pure black, pixel monospace font, no
 - **Gestures on the main page** — swipe left → Phone, swipe right → Camera, long-press on empty space → Settings.
 - **System integration** — hides the system status bar on the home (swipe from the top edge to peek), applies a pure black wallpaper (home + lock screen) when set as the default launcher, and provides shortcuts to grant usage/notification access.
 - **Counters** — usage time uses the same definition as Digital Wellbeing (foreground time only while the screen is on); unlocks come from keyguard events; notifications are counted once per day per notification (updates and system notifications excluded) and reset at midnight.
+- **Look levels** — four grayscale themes: hard (pure white on pure black) and soft 1/2/3 (near-black background, softer text). Selected in settings, applied to the whole launcher.
+- **CRT effect** — an optional light glow around the text plus a horizontal + vertical scanline grid drawn over every screen; both behind settings toggles.
+- **Carson typography** — `sdc` and `sdcr` modes for the main page only: each row fills the horizontal space by font size, letters get random case and "wrong" diacritic variants (~50% of the time) with irregular spacing; `sdcr` adds vertically flipped letters. The composition re-rolls on every unlock and stays still while you watch.
 
 ## Screenshots
 
-| Main page | App list |
-|---|---|
-| <img src="screenshot/minimal_launcher_monospace_screenshot0.jpg" width="280" alt="main page"> | <img src="screenshot/minimal_launcher_monospace_screenshot1.jpg" width="280" alt="app list"> |
+| Main page | App list | Carson mode (sdcr) | Settings |
+|---|---|---|---|
+| <img src="screenshot/minimal_launcher_monospace_screenshot0.jpg" width="280" alt="main page"> | <img src="screenshot/minimal_launcher_monospace_screenshot1.jpg" width="280" alt="app list"> | <img src="screenshot/minimal_launcher_monospace_screenshot2.jpg" width="280" alt="carson mode"> | <img src="screenshot/minimal_launcher_monospace_screenshot3.jpg" width="280" alt="settings"> |
 
 ## Settings
 
@@ -27,6 +30,9 @@ A text-only Android launcher: white text on pure black, pixel monospace font, no
 - date format (`Sun 13 Sep`, `13 Sep 26`, `Sun 13/09`, `Sunday 13 September`)
 - time separator (`:`, `_`, `.`, space, none)
 - home info (show unlocks / show notifications)
+- look (hard / soft 1 / soft 2 / soft 3)
+- crt effect (glow none / glow light, grid none / thin)
+- typography (off / sdc / sdcr)
 - set as default launcher
 - black wallpaper (re-applies it manually)
 - grant usage access / grant notification access (shown when missing)
@@ -34,7 +40,7 @@ A text-only Android launcher: white text on pure black, pixel monospace font, no
 
 ## Download
 
-**[Download Minimal Launcher 1.0 (APK)](releases/MinimalLauncher-1.0.apk)** — signed release build, ready to sideload.
+**[Download Minimal Launcher 1.1 (APK)](releases/MinimalLauncher-1.1.apk)** — signed release build, ready to sideload.
 
 > When the repo is on GitHub, you can also attach the APK to a tagged
 > [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
